@@ -12,13 +12,14 @@ book-ordered chapters per file, an ELI 5/10/15/20 dial, per-file tech-stack + ex
 service detection with doc links, and a plain-language security section per chapter.
 Distribution model: users copy the `.claude/` folder into their own project. No API key,
 no server, no build step — the product IS the prompt files (plus template + demo assets).
+Published at **https://github.com/86mdlong-design/crayon** (public, MIT).
 
 ## Inventory (current)
 
 | Path | Role | Status |
 |---|---|---|
 | `README.md` | Landing page / install & use docs | ✅ v1.1 (example book linked) |
-| `LICENSE` | MIT (copyright line has no name yet) | ⚠️ needs author name |
+| `LICENSE` | MIT — © 2026 86mdlong-design | ✅ |
 | `PROJECT_STATE.md` | This tracker | ✅ |
 | `.claude/commands/crayon.md` | The `/crayon` command spec | ✅ v1.1 (template-aware) |
 | `.claude/commands/crayon-reference.md` | ELI rubric, six mental models, service table, security checklist | ✅ v1 |
@@ -55,7 +56,7 @@ no server, no build step — the product IS the prompt files (plus template + de
 - [x] **M3 — Demo fixture**: `examples/demo-app` — small Express + Supabase + Stripe + OpenAI notes app with planted 🔴/🟠/🟡 findings and clean ✅ files
 - [x] **M4 — Dogfood run**: example book generated from the fixture using the template; validates ordering, ELI levels, service links, security flags
 - [x] **M5 — README v1.1**: 3-file install tree, demo + example-book sections
-- [ ] **M6 — Repo hygiene**: `git init` + first commit, author name in LICENSE, push to GitHub
+- [x] **M6 — Repo hygiene**: git repo on `main`, LICENSE attributed, initial commit `f85f07b`, public repo https://github.com/86mdlong-design/crayon
 - [ ] **M7 — Field test**: run `/crayon` on 2–3 real repos (different stacks); tune reference tables from what it misses
 - [ ] **M8 — v1.2 ideas (backlog)**: search box in sidebar; "what to learn next" pointers between chapters; optional per-chapter quiz; Python/Go/Rust service-detection rows; screenshot/GIF for README
 
@@ -68,9 +69,12 @@ no server, no build step — the product IS the prompt files (plus template + de
   string-concat 🟠, trusted body userId 🟠, no input validation 🟠, CORS `*` 🟡, plus
   clean ✅ files). Generated `examples/example-crayon-book.html` from the fixture as the
   dogfood run. Updated README. M1–M5 done.
+- **2026-07-04** — Session 2 (Claude): M6 done. LICENSE attributed to 86mdlong-design;
+  git repo initialized on `main` with repo-local identity (handle + GitHub no-reply
+  email); initial commit `f85f07b` (21 files); public repo created and pushed:
+  https://github.com/86mdlong-design/crayon.
 
 ## Next up
 
-1. **M6**: `git init`, add author name to LICENSE, first commit, create GitHub repo.
-2. **M7**: field-test `/crayon` on a real mid-size repo; log gaps in this file.
-3. Triage M8 backlog after field-test feedback.
+1. **M7**: field-test `/crayon` on a real mid-size repo (different stack than the fixture); log gaps here.
+2. Triage M8 backlog after field-test feedback — a README screenshot/GIF is a quick win now that the repo is public.
