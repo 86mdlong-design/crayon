@@ -1,0 +1,7 @@
+# Real crayon books are local-only — they expose code internals.
+# (examples/example-crayon-book.html is a curated exception built from fake demo code.)
+CRAYON_BOOK.html
+**/CRAYON_BOOK.html
+
+node_modules/
+.env

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stickr — sticky notes</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #fdf6e3; margin: 2rem; }
+    .note { background: #fff8b8; padding: 1rem; margin: .5rem 0; border-radius: 8px; box-shadow: 1px 2px 4px rgba(0,0,0,.15); }
+    #composer { display: flex; gap: .5rem; margin-bottom: 1rem; }
+    #composer input { flex: 1; padding: .5rem; }
+  </style>
+</head>
+<body>
+  <h1>📝 Stickr</h1>
+  <div id="composer">
+    <input id="note-input" placeholder="Write a note…">
+    <button id="add">Add</button>
+    <button id="upgrade">Go Pro ⭐</button>
+  </div>
+  <div id="notes"></div>
+  <script src="app.js"></script>
+</body>
+</html>

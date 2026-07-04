@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<!--
+════════════════════════════════════════════════════════════════════════
+CRAYON BOOK TEMPLATE — instructions for Claude running /crayon
+(Delete this entire comment block from the finished CRAYON_BOOK.html.)
+
+Fill steps — do ALL of these, change nothing else outside the markers:
+1. Replace every occurrence of the token  ¤PROJECT¤   with the project name.
+2. Replace  ¤SUBTITLE¤  with a one-line plain-language description of the app.
+3. Replace  ¤DATE¤  with today's date and  ¤COUNT¤  with the number of files documented.
+4. Replace everything between  CRAYON:TOC:BEGIN / CRAYON:TOC:END  with one <li>
+   per chapter, in book order, copying the sample <li> format exactly
+   (emoji dot = that chapter's worst security finding: 🔴 🟠 🟡 or ✅).
+5. Replace everything between  CRAYON:CHAPTERS:BEGIN / CRAYON:CHAPTERS:END  with
+   the real chapters, copying the sample chapter's structure exactly:
+   – chapter ids are  ch-0 (overview), ch-1, ch-2, …  matching TOC hrefs
+   – chapter 0 = project overview with the secrets-&-keys table and full stack
+   – each file chapter: badges row → dial → four .eli blocks (5/10/15/20) →
+     security box. Keep  class="eli on" data-eli="5"  on the 5 block ONLY;
+     the 10/15/20 blocks get  class="eli"  (no "on").
+   – every dial input keeps  min="0" max="3" step="1" value="0"
+   – security list items use  class="sev-red" / "sev-orange" / "sev-yellow";
+     a clean file uses the single  class="sev-ok"  line instead.
+Content rules live in crayon.md + crayon-reference.md (ELI rubric, six mental
+models, service links, security checklist). Never write secret VALUES.
+════════════════════════════════════════════════════════════════════════
+-->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>¤PROJECT¤ — Crayon Book</title>
+<style>
+:root{
+  --paper:#faf6ee; --paper-2:#f1e9d8; --card:#fffdf7;
+  --ink:#2b2540; --ink-soft:#5f5776; --line:#e2d8c3; --code-bg:#efe7d6;
+  --red:#e8503a; --orange:#f28c28; --yellow:#f2c94c;
+  --green:#3fa96c; --blue:#2d9cdb; --purple:#9b51e0;
+  --banner:#c22f21; --link:#1d70b8;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#211c2c; --paper-2:#181420; --card:#292336;
+    --ink:#ece7f6; --ink-soft:#b4abc9; --line:#3b3352; --code-bg:#342d47;
+    --banner:#a3271b; --link:#7db8ea;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",sans-serif;
+  line-height:1.65; font-size:16px;
+}
+code,pre{font-family:ui-monospace,Consolas,"Cascadia Mono",Menlo,monospace}
+code{background:var(--code-bg); padding:.08em .38em; border-radius:6px; font-size:.92em}
+pre{background:var(--code-bg); padding:.85rem 1rem; border-radius:10px; overflow-x:auto; line-height:1.5}
+pre code{background:none; padding:0}
+a{color:var(--link)}
+::selection{background:var(--yellow); color:#2b2540}
+
+/* ── top banner ─────────────────────────────────────────── */
+.banner{
+  background:var(--banner); color:#fff; text-align:center;
+  padding:.6rem 1rem; font-weight:600; font-size:.95rem;
+}
+
+/* ── header ─────────────────────────────────────────────── */
+.masthead{
+  display:flex; align-items:center; gap:1.1rem; flex-wrap:wrap;
+  padding:1.4rem 2rem; background:var(--paper-2);
+  border-bottom:7px solid;
+  border-image:linear-gradient(90deg,var(--red),var(--orange),var(--yellow),var(--green),var(--blue),var(--purple)) 1;
+}
+.masthead h1{margin:0; font-size:1.7rem; letter-spacing:.2px}
+.masthead .sub{margin:.15rem 0 0; color:var(--ink-soft)}
+.masthead .meta{margin:.15rem 0 0; font-size:.82rem; color:var(--ink-soft)}
+.logo{flex:none}
+
+/* ── layout ─────────────────────────────────────────────── */
+.layout{display:grid; grid-template-columns:300px minmax(0,1fr); align-items:start}
+.side{
+  position:sticky; top:0; max-height:100vh; overflow-y:auto;
+  padding:1.1rem 1.1rem 2rem; background:var(--paper-2);
+  border-right:1px solid var(--line); font-size:.92rem;
+}
+.side summary{
+  cursor:pointer; font-weight:700; font-size:1rem; padding:.3rem 0;
+  list-style-position:inside;
+}
+.side h2{font-size:.82rem; text-transform:uppercase; letter-spacing:.09em; color:var(--ink-soft); margin:1.2rem 0 .4rem}
+.toc{list-style:none; margin:0; padding:0}
+.toc li{margin:.12rem 0}
+.toc a{
+  display:block; padding:.28rem .55rem; border-radius:8px;
+  text-decoration:none; color:var(--ink);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.toc a:hover{background:var(--code-bg)}
+.toc a.active{background:var(--card); box-shadow:inset 3px 0 0 var(--purple); font-weight:600}
+.toc code{background:none; padding:0}
+.legend{margin:.6rem 0 0; padding:0; list-style:none; color:var(--ink-soft); font-size:.82rem}
+.legend li{margin:.1rem 0}
+
+/* ── main / chapters ────────────────────────────────────── */
+.pages{max-width:78ch; margin:0 auto; padding:2.2rem 2.4rem 6rem}
+.chapter{
+  background:var(--card); border:1px solid var(--line); border-radius:16px;
+  padding:1.6rem 1.8rem 1.4rem; margin:0 0 2rem;
+  scroll-margin-top:1rem; box-shadow:0 1px 3px rgba(0,0,0,.05);
+}
+.chapter h2{
+  margin:.1rem 0 .2rem; font-size:1.35rem;
+  text-decoration:underline; text-decoration-thickness:7px;
+  text-underline-offset:7px; text-decoration-skip-ink:none;
+}
+.chapter:nth-of-type(6n+1) h2{text-decoration-color:var(--yellow)}
+.chapter:nth-of-type(6n+2) h2{text-decoration-color:var(--blue)}
+.chapter:nth-of-type(6n+3) h2{text-decoration-color:var(--green)}
+.chapter:nth-of-type(6n+4) h2{text-decoration-color:var(--orange)}
+.chapter:nth-of-type(6n+5) h2{text-decoration-color:var(--purple)}
+.chapter:nth-of-type(6n+6) h2{text-decoration-color:var(--red)}
+.ch-num{
+  display:inline-grid; place-items:center; width:1.7em; height:1.7em;
+  border-radius:50%; background:var(--ink); color:var(--paper);
+  font-size:.72em; vertical-align:.12em; margin-right:.35rem;
+}
+.ch-role{margin:.1rem 0 .7rem; color:var(--ink-soft)}
+.badges{display:flex; flex-wrap:wrap; gap:.45rem; margin:.2rem 0 1rem}
+.badge{
+  display:inline-flex; align-items:center; gap:.3rem;
+  padding:.13rem .65rem; border-radius:999px; font-size:.8rem;
+  border:1.5px solid var(--line); background:var(--paper-2);
+  color:var(--ink); text-decoration:none; white-space:nowrap;
+}
+.badge-lang{border-color:var(--blue)}
+a.badge-svc:hover{border-color:var(--purple); background:var(--code-bg)}
+
+/* ── ELI dial ───────────────────────────────────────────── */
+.dial{
+  display:flex; align-items:center; gap:.9rem; flex-wrap:wrap;
+  background:var(--paper-2); border:1px solid var(--line);
+  border-radius:12px; padding:.6rem .95rem; margin:0 0 1.1rem;
+}
+.dial-label{font-weight:700; font-size:.95rem}
+.dial-label output{
+  display:inline-grid; place-items:center; min-width:2.1em; padding:.05em .25em;
+  background:var(--yellow); color:#2b2540; border-radius:8px; font-weight:800;
+}
+.dial-track{flex:1 1 150px; min-width:130px}
+.dial input[type=range]{width:100%; accent-color:var(--purple); cursor:pointer; margin:0}
+.dial-ticks{display:flex; justify-content:space-between; font-size:.72rem; color:var(--ink-soft); padding:0 2px}
+.eli{display:none}
+.eli.on{display:block; animation:fadein .18s ease-out}
+@keyframes fadein{from{opacity:0; transform:translateY(3px)}to{opacity:1}}
+.eli h4{margin:1.05rem 0 .3rem; font-size:.98rem}
+.eli ul,.eli ol{padding-left:1.3rem}
+.fns{margin:.4rem 0}
+.fns dt{font-weight:600; margin-top:.55rem}
+.fns dt code{background:var(--code-bg)}
+.fns dd{margin:.1rem 0 0 1.1rem; color:var(--ink)}
+
+/* ── security box ───────────────────────────────────────── */
+.sec{
+  border:1.5px solid var(--line); border-left:7px solid var(--red);
+  border-radius:12px; padding:.85rem 1.1rem; margin-top:1.2rem;
+  background:var(--paper-2);
+}
+.sec.sec-clean{border-left-color:var(--green)}
+.sec h3{margin:.05rem 0 .45rem; font-size:1rem}
+.sec ul{margin:.2rem 0; padding-left:1.25rem}
+.sec li{margin:.4rem 0}
+.sec li::marker{content:""}
+.sec li{list-style:none; margin-left:-1.25rem; padding-left:1.6rem; text-indent:-1.6rem}
+.sev-red::before{content:"🔴 "}
+.sev-orange::before{content:"🟠 "}
+.sev-yellow::before{content:"🟡 "}
+.sev-ok::before{content:"✅ "}
+
+/* ── tables (overview secrets table etc.) ───────────────── */
+.scrollx{overflow-x:auto}
+table{border-collapse:collapse; width:100%; font-size:.92rem; margin:.5rem 0 1rem}
+th,td{border:1px solid var(--line); padding:.45rem .65rem; text-align:left; vertical-align:top}
+th{background:var(--paper-2)}
+
+footer{padding:2.5rem 1rem 3rem; text-align:center; color:var(--ink-soft); font-size:.85rem}
+
+/* ── mobile ─────────────────────────────────────────────── */
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .side{position:static; max-height:none; border-right:none; border-bottom:1px solid var(--line)}
+  .pages{padding:1.4rem 1rem 4rem}
+  .chapter{padding:1.15rem 1rem 1rem}
+  .masthead{padding:1rem 1.1rem}
+}
+@media (min-width:901px){
+  .side summary{display:none}
+  .side details{display:contents}
+}
+</style>
+</head>
+<body>
+
+<div class="banner">⚠️ Local only — this book contains code internals. Do not commit or share.</div>
+
+<header class="masthead">
+  <svg class="logo" viewBox="0 0 96 96" width="72" height="72" role="img" aria-label="Crayon box with a bitten crayon">
+    <defs>
+      <mask id="bite">
+        <rect x="0" y="0" width="96" height="96" fill="#fff"/>
+        <circle cx="75" cy="21" r="6" fill="#000"/>
+        <circle cx="70" cy="15" r="4.5" fill="#000"/>
+      </mask>
+    </defs>
+    <g transform="rotate(-9 30 60)">
+      <polygon points="24,26 36,26 30,13" fill="#2d9cdb"/>
+      <rect x="24" y="26" width="12" height="34" rx="2" fill="#2d9cdb"/>
+      <rect x="24" y="30" width="12" height="4" fill="#fff" opacity=".5"/>
+    </g>
+    <g>
+      <polygon points="42,20 54,20 48,7" fill="#3fa96c"/>
+      <rect x="42" y="20" width="12" height="40" rx="2" fill="#3fa96c"/>
+      <rect x="42" y="24" width="12" height="4" fill="#fff" opacity=".5"/>
+    </g>
+    <g transform="rotate(8 66 60)" mask="url(#bite)">
+      <polygon points="60,24 72,24 66,11" fill="#e8503a"/>
+      <rect x="60" y="24" width="12" height="36" rx="2" fill="#e8503a"/>
+      <rect x="60" y="28" width="12" height="4" fill="#fff" opacity=".5"/>
+    </g>
+    <rect x="13" y="52" width="70" height="35" rx="7" fill="#e0a458"/>
+    <rect x="13" y="52" width="70" height="11" rx="5.5" fill="#c98a3f"/>
+    <path d="M23 72 q6 -7 12 0 t12 0 t12 0 t12 0" fill="none" stroke="#7a4f1d" stroke-width="3.2" stroke-linecap="round"/>
+  </svg>
+  <div>
+    <h1>🖍️ ¤PROJECT¤ — Crayon Book</h1>
+    <p class="sub">¤SUBTITLE¤</p>
+    <p class="meta">Generated ¤DATE¤ · ¤COUNT¤ files documented · made with Crayon Docs</p>
+  </div>
+</header>
+
+<div class="layout">
+
+<aside class="side">
+  <details open>
+    <summary>📖 Book index</summary>
+    <div class="dial" style="margin-top:.7rem">
+      <span class="dial-label">Whole book: I'm <output id="out-all">5</output></span>
+      <span class="dial-track">
+        <input id="dial-all" type="range" min="0" max="3" step="1" value="0" aria-label="Set explanation level for every chapter: 5, 10, 15 or 20">
+        <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+      </span>
+    </div>
+    <h2>Chapters</h2>
+    <ul class="toc">
+      <!-- CRAYON:TOC:BEGIN — replace the sample <li>s below with one per chapter -->
+      <li><a href="#ch-0">✅ <code>Start here — the whole picture</code></a></li>
+      <li><a href="#ch-1">🔴 <code>sample/file.js</code></a></li>
+      <!-- CRAYON:TOC:END -->
+    </ul>
+    <h2>Dots</h2>
+    <ul class="legend">
+      <li>🔴 serious — fix soon</li>
+      <li>🟠 risky — plan a fix</li>
+      <li>🟡 worth knowing</li>
+      <li>✅ no obvious issues</li>
+    </ul>
+  </details>
+</aside>
+
+<main class="pages">
+<!-- CRAYON:CHAPTERS:BEGIN — replace everything down to the END marker with real chapters -->
+
+<section class="chapter" id="ch-0">
+  <header>
+    <h2><span class="ch-num">0</span> Start here — the whole picture</h2>
+    <p class="ch-role">What this app is, its pieces, its keys, and everything it talks to</p>
+    <p class="badges">
+      <span class="badge badge-lang">Overview</span>
+      <a class="badge badge-svc" href="https://example.com/docs" target="_blank" rel="noopener">Sample Service ↗</a>
+      <span class="badge">🔑 2 secrets</span>
+    </p>
+  </header>
+  <div class="dial">
+    <span class="dial-label">Explain it like I'm <output>5</output></span>
+    <span class="dial-track">
+      <input type="range" min="0" max="3" step="1" value="0" aria-label="Explanation level: 5, 10, 15 or 20">
+      <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+    </span>
+  </div>
+  <div class="eli on" data-eli="5">
+    <p>SAMPLE — overview at ELI-5: what the app is, as a story, zero jargon.</p>
+    <h4>🔑 Secret notes the app keeps</h4>
+    <div class="scrollx"><table>
+      <tr><th>Secret's name</th><th>Which files use it</th><th>What it unlocks</th></tr>
+      <tr><td><code>SAMPLE_KEY</code></td><td><code>sample/file.js</code></td><td>Sample description (value never shown)</td></tr>
+    </table></div>
+  </div>
+  <div class="eli" data-eli="10"><p>SAMPLE — overview at ELI-10.</p></div>
+  <div class="eli" data-eli="15"><p>SAMPLE — overview at ELI-15.</p></div>
+  <div class="eli" data-eli="20"><p>SAMPLE — overview at ELI-20.</p></div>
+  <div class="sec">
+    <h3>🔒 Biggest risks in this codebase</h3>
+    <ul>
+      <li class="sev-red">SAMPLE — the single most urgent finding, in plain language, with the chapter link.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="chapter" id="ch-1" data-file="sample/file.js">
+  <header>
+    <h2><span class="ch-num">1</span> <code>sample/file.js</code></h2>
+    <p class="ch-role">One-line job description of this file</p>
+    <p class="badges">
+      <span class="badge badge-lang">JavaScript</span>
+      <a class="badge badge-svc" href="https://example.com/docs" target="_blank" rel="noopener">Sample Service ↗</a>
+      <span class="badge">🔴 security notes below</span>
+    </p>
+  </header>
+  <div class="dial">
+    <span class="dial-label">Explain it like I'm <output>5</output></span>
+    <span class="dial-track">
+      <input type="range" min="0" max="3" step="1" value="0" aria-label="Explanation level: 5, 10, 15 or 20">
+      <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+    </span>
+  </div>
+  <div class="eli on" data-eli="5">
+    <p>SAMPLE — pure analogy explanation: what the file does and what it connects to.</p>
+    <h4>The jobs inside (functions)</h4>
+    <dl class="fns">
+      <dt><code>doThing()</code></dt><dd>SAMPLE — what this job does, as an analogy.</dd>
+    </dl>
+  </div>
+  <div class="eli" data-eli="10">
+    <p>SAMPLE — light real terms, defined on first use; same facts, less hand-holding.</p>
+    <dl class="fns"><dt><code>doThing()</code></dt><dd>SAMPLE.</dd></dl>
+  </div>
+  <div class="eli" data-eli="15">
+    <p>SAMPLE — normal dev vocabulary; only project-specific logic explained.</p>
+    <dl class="fns"><dt><code>doThing()</code></dt><dd>SAMPLE.</dd></dl>
+  </div>
+  <div class="eli" data-eli="20">
+    <p>SAMPLE — terse and technical; only non-obvious design and tradeoffs.</p>
+  </div>
+  <div class="sec">
+    <h3>🔒 Attack surfaces that live here</h3>
+    <ul>
+      <li class="sev-red">SAMPLE — serious finding in plain language. Names the env var, never the value.</li>
+      <li class="sev-yellow">SAMPLE — worth-knowing finding.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- A clean file's security box looks like this instead:
+<div class="sec sec-clean">
+  <h3>🔒 Attack surfaces that live here</h3>
+  <ul><li class="sev-ok">No obvious attack surfaces on this page.</li></ul>
+</div>
+-->
+
+<!-- CRAYON:CHAPTERS:END -->
+</main>
+</div>
+
+<footer>Made with 🖍️ <strong>Crayon Docs</strong> — a local book about your code. Keep it local.</footer>
+
+<script>
+(function(){
+  var LEVELS=[5,10,15,20];
+  function setLevel(ch, idx){
+    var input=ch.querySelector('.dial input'); if(!input) return;
+    input.value=idx;
+    var out=ch.querySelector('.dial output'); if(out) out.textContent=LEVELS[idx];
+    ch.querySelectorAll('.eli').forEach(function(e){
+      e.classList.toggle('on', +e.getAttribute('data-eli')===LEVELS[idx]);
+    });
+  }
+  var chapters=Array.prototype.slice.call(document.querySelectorAll('.chapter'));
+  chapters.forEach(function(ch){
+    var input=ch.querySelector('.dial input'); if(!input) return;
+    input.addEventListener('input', function(){ setLevel(ch, +input.value); });
+    setLevel(ch, +input.value);
+  });
+  var all=document.getElementById('dial-all'), outAll=document.getElementById('out-all');
+  if(all) all.addEventListener('input', function(){
+    if(outAll) outAll.textContent=LEVELS[+all.value];
+    chapters.forEach(function(ch){ setLevel(ch, +all.value); });
+  });
+  // sidebar link highlighting while you scroll
+  var links={};
+  document.querySelectorAll('.toc a').forEach(function(a){ links[a.hash.slice(1)]=a; });
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting) return;
+        var l=links[en.target.id]; if(!l) return;
+        document.querySelectorAll('.toc a.active').forEach(function(x){ x.classList.remove('active'); });
+        l.classList.add('active');
+      });
+    },{rootMargin:'-15% 0px -75% 0px'});
+    chapters.forEach(function(s){ io.observe(s); });
+  }
+  // book index: always open on desktop, collapsible on phones
+  var det=document.querySelector('.side details'), mq=window.matchMedia('(max-width:900px)');
+  function fit(){ if(det) det.open=!mq.matches; }
+  fit();
+  if(mq.addEventListener) mq.addEventListener('change', fit);
+})();
+</script>
+</body>
+</html>

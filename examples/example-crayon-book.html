@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Stickr (demo) — Crayon Book</title>
+<style>
+:root{
+  --paper:#faf6ee; --paper-2:#f1e9d8; --card:#fffdf7;
+  --ink:#2b2540; --ink-soft:#5f5776; --line:#e2d8c3; --code-bg:#efe7d6;
+  --red:#e8503a; --orange:#f28c28; --yellow:#f2c94c;
+  --green:#3fa96c; --blue:#2d9cdb; --purple:#9b51e0;
+  --banner:#c22f21; --link:#1d70b8;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#211c2c; --paper-2:#181420; --card:#292336;
+    --ink:#ece7f6; --ink-soft:#b4abc9; --line:#3b3352; --code-bg:#342d47;
+    --banner:#a3271b; --link:#7db8ea;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",sans-serif;
+  line-height:1.65; font-size:16px;
+}
+code,pre{font-family:ui-monospace,Consolas,"Cascadia Mono",Menlo,monospace}
+code{background:var(--code-bg); padding:.08em .38em; border-radius:6px; font-size:.92em}
+pre{background:var(--code-bg); padding:.85rem 1rem; border-radius:10px; overflow-x:auto; line-height:1.5}
+pre code{background:none; padding:0}
+a{color:var(--link)}
+::selection{background:var(--yellow); color:#2b2540}
+.banner{
+  background:var(--banner); color:#fff; text-align:center;
+  padding:.6rem 1rem; font-weight:600; font-size:.95rem;
+}
+.masthead{
+  display:flex; align-items:center; gap:1.1rem; flex-wrap:wrap;
+  padding:1.4rem 2rem; background:var(--paper-2);
+  border-bottom:7px solid;
+  border-image:linear-gradient(90deg,var(--red),var(--orange),var(--yellow),var(--green),var(--blue),var(--purple)) 1;
+}
+.masthead h1{margin:0; font-size:1.7rem; letter-spacing:.2px}
+.masthead .sub{margin:.15rem 0 0; color:var(--ink-soft)}
+.masthead .meta{margin:.15rem 0 0; font-size:.82rem; color:var(--ink-soft)}
+.logo{flex:none}
+.layout{display:grid; grid-template-columns:300px minmax(0,1fr); align-items:start}
+.side{
+  position:sticky; top:0; max-height:100vh; overflow-y:auto;
+  padding:1.1rem 1.1rem 2rem; background:var(--paper-2);
+  border-right:1px solid var(--line); font-size:.92rem;
+}
+.side summary{
+  cursor:pointer; font-weight:700; font-size:1rem; padding:.3rem 0;
+  list-style-position:inside;
+}
+.side h2{font-size:.82rem; text-transform:uppercase; letter-spacing:.09em; color:var(--ink-soft); margin:1.2rem 0 .4rem}
+.toc{list-style:none; margin:0; padding:0}
+.toc li{margin:.12rem 0}
+.toc a{
+  display:block; padding:.28rem .55rem; border-radius:8px;
+  text-decoration:none; color:var(--ink);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.toc a:hover{background:var(--code-bg)}
+.toc a.active{background:var(--card); box-shadow:inset 3px 0 0 var(--purple); font-weight:600}
+.toc code{background:none; padding:0}
+.legend{margin:.6rem 0 0; padding:0; list-style:none; color:var(--ink-soft); font-size:.82rem}
+.legend li{margin:.1rem 0}
+.pages{max-width:78ch; margin:0 auto; padding:2.2rem 2.4rem 6rem}
+.chapter{
+  background:var(--card); border:1px solid var(--line); border-radius:16px;
+  padding:1.6rem 1.8rem 1.4rem; margin:0 0 2rem;
+  scroll-margin-top:1rem; box-shadow:0 1px 3px rgba(0,0,0,.05);
+}
+.chapter h2{
+  margin:.1rem 0 .2rem; font-size:1.35rem;
+  text-decoration:underline; text-decoration-thickness:7px;
+  text-underline-offset:7px; text-decoration-skip-ink:none;
+}
+.chapter:nth-of-type(6n+1) h2{text-decoration-color:var(--yellow)}
+.chapter:nth-of-type(6n+2) h2{text-decoration-color:var(--blue)}
+.chapter:nth-of-type(6n+3) h2{text-decoration-color:var(--green)}
+.chapter:nth-of-type(6n+4) h2{text-decoration-color:var(--orange)}
+.chapter:nth-of-type(6n+5) h2{text-decoration-color:var(--purple)}
+.chapter:nth-of-type(6n+6) h2{text-decoration-color:var(--red)}
+.ch-num{
+  display:inline-grid; place-items:center; width:1.7em; height:1.7em;
+  border-radius:50%; background:var(--ink); color:var(--paper);
+  font-size:.72em; vertical-align:.12em; margin-right:.35rem;
+}
+.ch-role{margin:.1rem 0 .7rem; color:var(--ink-soft)}
+.badges{display:flex; flex-wrap:wrap; gap:.45rem; margin:.2rem 0 1rem}
+.badge{
+  display:inline-flex; align-items:center; gap:.3rem;
+  padding:.13rem .65rem; border-radius:999px; font-size:.8rem;
+  border:1.5px solid var(--line); background:var(--paper-2);
+  color:var(--ink); text-decoration:none; white-space:nowrap;
+}
+.badge-lang{border-color:var(--blue)}
+a.badge-svc:hover{border-color:var(--purple); background:var(--code-bg)}
+.dial{
+  display:flex; align-items:center; gap:.9rem; flex-wrap:wrap;
+  background:var(--paper-2); border:1px solid var(--line);
+  border-radius:12px; padding:.6rem .95rem; margin:0 0 1.1rem;
+}
+.dial-label{font-weight:700; font-size:.95rem}
+.dial-label output{
+  display:inline-grid; place-items:center; min-width:2.1em; padding:.05em .25em;
+  background:var(--yellow); color:#2b2540; border-radius:8px; font-weight:800;
+}
+.dial-track{flex:1 1 150px; min-width:130px}
+.dial input[type=range]{width:100%; accent-color:var(--purple); cursor:pointer; margin:0}
+.dial-ticks{display:flex; justify-content:space-between; font-size:.72rem; color:var(--ink-soft); padding:0 2px}
+.eli{display:none}
+.eli.on{display:block; animation:fadein .18s ease-out}
+@keyframes fadein{from{opacity:0; transform:translateY(3px)}to{opacity:1}}
+.eli h4{margin:1.05rem 0 .3rem; font-size:.98rem}
+.eli ul,.eli ol{padding-left:1.3rem}
+.fns{margin:.4rem 0}
+.fns dt{font-weight:600; margin-top:.55rem}
+.fns dt code{background:var(--code-bg)}
+.fns dd{margin:.1rem 0 0 1.1rem; color:var(--ink)}
+.sec{
+  border:1.5px solid var(--line); border-left:7px solid var(--red);
+  border-radius:12px; padding:.85rem 1.1rem; margin-top:1.2rem;
+  background:var(--paper-2);
+}
+.sec.sec-clean{border-left-color:var(--green)}
+.sec h3{margin:.05rem 0 .45rem; font-size:1rem}
+.sec ul{margin:.2rem 0; padding-left:1.25rem}
+.sec li{margin:.4rem 0}
+.sec li::marker{content:""}
+.sec li{list-style:none; margin-left:-1.25rem; padding-left:1.6rem; text-indent:-1.6rem}
+.sev-red::before{content:"🔴 "}
+.sev-orange::before{content:"🟠 "}
+.sev-yellow::before{content:"🟡 "}
+.sev-ok::before{content:"✅ "}
+.scrollx{overflow-x:auto}
+table{border-collapse:collapse; width:100%; font-size:.92rem; margin:.5rem 0 1rem}
+th,td{border:1px solid var(--line); padding:.45rem .65rem; text-align:left; vertical-align:top}
+th{background:var(--paper-2)}
+footer{padding:2.5rem 1rem 3rem; text-align:center; color:var(--ink-soft); font-size:.85rem}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .side{position:static; max-height:none; border-right:none; border-bottom:1px solid var(--line)}
+  .pages{padding:1.4rem 1rem 4rem}
+  .chapter{padding:1.15rem 1rem 1rem}
+  .masthead{padding:1rem 1.1rem}
+}
+@media (min-width:901px){
+  .side summary{display:none}
+  .side details{display:contents}
+}
+</style>
+</head>
+<body>
+
+<div class="banner">⚠️ Local only — this book contains code internals. Do not commit or share. (This copy is a published <em>example</em> built from Crayon's fake demo app.)</div>
+
+<header class="masthead">
+  <svg class="logo" viewBox="0 0 96 96" width="72" height="72" role="img" aria-label="Crayon box with a bitten crayon">
+    <defs>
+      <mask id="bite">
+        <rect x="0" y="0" width="96" height="96" fill="#fff"/>
+        <circle cx="75" cy="21" r="6" fill="#000"/>
+        <circle cx="70" cy="15" r="4.5" fill="#000"/>
+      </mask>
+    </defs>
+    <g transform="rotate(-9 30 60)">
+      <polygon points="24,26 36,26 30,13" fill="#2d9cdb"/>
+      <rect x="24" y="26" width="12" height="34" rx="2" fill="#2d9cdb"/>
+      <rect x="24" y="30" width="12" height="4" fill="#fff" opacity=".5"/>
+    </g>
+    <g>
+      <polygon points="42,20 54,20 48,7" fill="#3fa96c"/>
+      <rect x="42" y="20" width="12" height="40" rx="2" fill="#3fa96c"/>
+      <rect x="42" y="24" width="12" height="4" fill="#fff" opacity=".5"/>
+    </g>
+    <g transform="rotate(8 66 60)" mask="url(#bite)">
+      <polygon points="60,24 72,24 66,11" fill="#e8503a"/>
+      <rect x="60" y="24" width="12" height="36" rx="2" fill="#e8503a"/>
+      <rect x="60" y="28" width="12" height="4" fill="#fff" opacity=".5"/>
+    </g>
+    <rect x="13" y="52" width="70" height="35" rx="7" fill="#e0a458"/>
+    <rect x="13" y="52" width="70" height="11" rx="5.5" fill="#c98a3f"/>
+    <path d="M23 72 q6 -7 12 0 t12 0 t12 0 t12 0" fill="none" stroke="#7a4f1d" stroke-width="3.2" stroke-linecap="round"/>
+  </svg>
+  <div>
+    <h1>🖍️ Stickr — Crayon Book</h1>
+    <p class="sub">A tiny sticky-notes app with a paid Pro plan and AI one-line summaries — read, explained, and security-checked by /crayon.</p>
+    <p class="meta">Generated July 4, 2026 · 12 files documented · made with Crayon Docs</p>
+  </div>
+</header>
+
+<div class="layout">
+
+<aside class="side">
+  <details open>
+    <summary>📖 Book index</summary>
+    <div class="dial" style="margin-top:.7rem">
+      <span class="dial-label">Whole book: I'm <output id="out-all">5</output></span>
+      <span class="dial-track">
+        <input id="dial-all" type="range" min="0" max="3" step="1" value="0" aria-label="Set explanation level for every chapter: 5, 10, 15 or 20">
+        <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+      </span>
+    </div>
+    <h2>Chapters</h2>
+    <ul class="toc">
+      <li><a href="#ch-0">🔴 <code>Start here — the whole picture</code></a></li>
+      <li><a href="#ch-1">✅ <code>package.json</code></a></li>
+      <li><a href="#ch-2">🟡 <code>.env.example</code></a></li>
+      <li><a href="#ch-3">🟡 <code>server.js</code></a></li>
+      <li><a href="#ch-4">🟠 <code>routes/notes.js</code></a></li>
+      <li><a href="#ch-5">🔴 <code>routes/billing.js</code></a></li>
+      <li><a href="#ch-6">✅ <code>public/index.html</code></a></li>
+      <li><a href="#ch-7">🔴 <code>public/app.js</code></a></li>
+      <li><a href="#ch-8">✅ <code>lib/db.js</code></a></li>
+      <li><a href="#ch-9">✅ <code>lib/supabase.js</code></a></li>
+      <li><a href="#ch-10">🟡 <code>lib/ai.js</code></a></li>
+      <li><a href="#ch-11">✅ <code>utils/format.js</code></a></li>
+      <li><a href="#ch-12">✅ <code>tests/format.test.js</code></a></li>
+    </ul>
+    <h2>Dots</h2>
+    <ul class="legend">
+      <li>🔴 serious — fix soon</li>
+      <li>🟠 risky — plan a fix</li>
+      <li>🟡 worth knowing</li>
+      <li>✅ no obvious issues</li>
+    </ul>
+  </details>
+</aside>
+
+<main class="pages">
+
+<section class="chapter" id="ch-0">
+  <header>
+    <h2><span class="ch-num">0</span> Start here — the whole picture</h2>
+    <p class="ch-role">What Stickr is, its pieces, its keys, and everything it talks to</p>
+    <p class="badges">
+      <span class="badge badge-lang">Overview</span>
+      <a class="badge badge-svc" href="https://supabase.com/docs" target="_blank" rel="noopener">Supabase ↗</a>
+      <a class="badge badge-svc" href="https://docs.stripe.com" target="_blank" rel="noopener">Stripe ↗</a>
+      <a class="badge badge-svc" href="https://platform.openai.com/docs" target="_blank" rel="noopener">OpenAI ↗</a>
+      <a class="badge badge-svc" href="https://www.postgresql.org/docs" target="_blank" rel="noopener">Postgres ↗</a>
+      <span class="badge">🔑 8 named keys</span>
+    </p>
+  </header>
+  <div class="dial">
+    <span class="dial-label">Explain it like I'm <output>5</output></span>
+    <span class="dial-track">
+      <input type="range" min="0" max="3" step="1" value="0" aria-label="Explanation level: 5, 10, 15 or 20">
+      <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+    </span>
+  </div>
+  <div class="eli on" data-eli="5">
+    <p>Stickr is a little shop where people pin sticky notes. The shop has a <strong>front window</strong> (the page you see, <code>public/</code>), a <strong>counter person</strong> who answers every request (<code>server.js</code>), and two hallways behind the counter: one for <strong>notes</strong> and one for <strong>money</strong>. Notes are kept in a big <strong>filing cabinet</strong> (a database called Postgres). A helper company called <strong>Supabase</strong> remembers who paid for the fancy Pro plan. A <strong>payment booth</strong> (Stripe) takes the money, and a <strong>robot reader</strong> (OpenAI) can squeeze any note into one short sentence.</p>
+    <p>The inspector found <strong>three big problems</strong>: a master key taped to the front window, a money door that believes anyone who knocks, and note text glued straight into filing-cabinet instructions. The red dots in the index show where they live.</p>
+  </div>
+  <div class="eli" data-eli="10">
+    <p>Stickr is a small web app: a plain HTML/JavaScript page in your browser, and a Node server behind it. The page never touches data directly — it sends requests to the server's <em>API</em> (its set of request-handling addresses, like <code>/api/notes</code>). The server keeps notes in a Postgres database, keeps each user's plan (free or pro) in Supabase, sends people to Stripe to pay, and asks OpenAI for one-line note summaries.</p>
+    <p>Secrets (keys and passwords) are supposed to live in a <code>.env</code> file the server reads at startup — the table below lists them by name. One of them also got pasted into browser code, which is the book's most serious finding.</p>
+  </div>
+  <div class="eli" data-eli="15">
+    <p>Single-process Express monolith: serves the static frontend from <code>public/</code>, exposes a JSON API (<code>/api/notes</code>, <code>/api/billing</code>). Notes CRUD hits Postgres directly via <code>pg</code>; profile/plan state lives in Supabase (updated server-side with the service-role client); payments use Stripe Checkout plus a webhook that flips <code>profiles.plan</code> to <code>pro</code>; summaries call OpenAI chat completions. Config is env-driven via dotenv. There is <strong>no auth layer</strong> — every route trusts a caller-supplied <code>userId</code>.</p>
+  </div>
+  <div class="eli" data-eli="20">
+    <p>Architecture notes: identity is client-asserted end-to-end (localStorage → query/body → SQL/Stripe <code>client_reference_id</code>), so every authorization property collapses; fixing auth is prerequisite to fixing anything else. Persistence is split across raw <code>pg</code> and Supabase Postgres — two sources of truth, one consolidation candidate. The webhook trust boundary is broken (no signature verification), and the service-role key exists in two places: env (correct) and shipped client bundle (fatal — rotate first). Tests cover pure utils only; the risky surfaces are untested.</p>
+  </div>
+  <h4>🔑 Secrets &amp; keys — names only, never values</h4>
+  <div class="scrollx"><table>
+    <tr><th>Key name</th><th>Used by</th><th>What it unlocks</th></tr>
+    <tr><td><code>SUPABASE_URL</code></td><td><code>lib/supabase.js</code></td><td>Address of the Supabase project (not secret, pairs with keys below)</td></tr>
+    <tr><td><code>SUPABASE_ANON_KEY</code></td><td><em>nobody</em> — defined in <code>.env.example</code> but never read</td><td>Public-tier Supabase access; unused here (drift)</td></tr>
+    <tr><td><code>SUPABASE_SERVICE_ROLE_KEY</code></td><td><code>lib/supabase.js</code> ✅ · also hardcoded in <code>public/app.js</code> 🔴</td><td><strong>Master key</strong> — bypasses every row-level data rule</td></tr>
+    <tr><td><code>DATABASE_URL</code></td><td><code>lib/db.js</code></td><td>Direct Postgres login, password included in the string</td></tr>
+    <tr><td><code>STRIPE_SECRET_KEY</code></td><td><code>routes/billing.js</code></td><td>Full control of the Stripe account (charges, refunds, customers)</td></tr>
+    <tr><td><code>STRIPE_WEBHOOK_SECRET</code></td><td><em>nobody</em> — the signature check it belongs to is missing 🔴</td><td>Proves a webhook really came from Stripe</td></tr>
+    <tr><td><code>OPENAI_API_KEY</code></td><td><code>lib/ai.js</code></td><td>Pay-per-use OpenAI access</td></tr>
+    <tr><td><code>PORT</code></td><td><code>server.js</code></td><td>Not a secret — which door number the server opens on</td></tr>
+  </table></div>
+  <h4>🧱 Stack &amp; services</h4>
+  <p>Node.js + <a href="https://expressjs.com" target="_blank" rel="noopener">Express</a> server · vanilla HTML/JS frontend · <a href="https://www.postgresql.org/docs" target="_blank" rel="noopener">Postgres</a> via <code>pg</code> · <a href="https://supabase.com/docs" target="_blank" rel="noopener">Supabase</a> for profiles/plans · <a href="https://docs.stripe.com" target="_blank" rel="noopener">Stripe</a> Checkout + webhooks · <a href="https://platform.openai.com/docs" target="_blank" rel="noopener">OpenAI</a> summaries · <code>node:test</code> for tests.</p>
+  <div class="sec">
+    <h3>🔒 Biggest risks in this codebase</h3>
+    <ul>
+      <li class="sev-red">A service-role master key is hardcoded in browser code — anyone who opens the page can read it. (<a href="#ch-7">public/app.js</a>)</li>
+      <li class="sev-red">The Stripe webhook believes anyone — a faked "payment succeeded" message upgrades any account for free. (<a href="#ch-5">routes/billing.js</a>)</li>
+      <li class="sev-orange">User text is glued into SQL commands, and every route trusts whatever <code>userId</code> the caller claims. (<a href="#ch-4">routes/notes.js</a>)</li>
+    </ul>
+  </div>
+</section>
+
+<section class="chapter" id="ch-1" data-file="package.json">
+  <header>
+    <h2><span class="ch-num">1</span> <code>package.json</code></h2>
+    <p class="ch-role">The shopping list — everything this app depends on, and the words that start it</p>
+    <p class="badges">
+      <span class="badge badge-lang">JSON</span>
+      <a class="badge badge-svc" href="https://supabase.com/docs" target="_blank" rel="noopener">Supabase ↗</a>
+      <a class="badge badge-svc" href="https://docs.stripe.com" target="_blank" rel="noopener">Stripe ↗</a>
+      <a class="badge badge-svc" href="https://platform.openai.com/docs" target="_blank" rel="noopener">OpenAI ↗</a>
+      <a class="badge badge-svc" href="https://www.postgresql.org/docs" target="_blank" rel="noopener">Postgres ↗</a>
+      <span class="badge">✅ clean</span>
+    </p>
+  </header>
+  <div class="dial">
+    <span class="dial-label">Explain it like I'm <output>5</output></span>
+    <span class="dial-track">
+      <input type="range" min="0" max="3" step="1" value="0" aria-label="Explanation level: 5, 10, 15 or 20">
+      <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+    </span>
+  </div>
+  <div class="eli on" data-eli="5">
+    <p>This is the app's <strong>shopping list and instruction card</strong>. It says the app's name (<em>stickr-demo</em>), lists every ready-made toolbox it borrows (one for talking to Supabase, one for Stripe, one for the robot reader, and so on), and teaches two magic words: <em>start</em> (open the shop) and <em>test</em> (check the label maker works). There are no moving parts on this page — it's a list, not a machine.</p>
+  </div>
+  <div class="eli" data-eli="10">
+    <p>Every Node project has this file: a <em>manifest</em> that names the project and its <em>dependencies</em> — libraries downloaded into <code>node_modules</code> so the code can use them. Here: <code>express</code> (the web server), <code>pg</code> (talks to Postgres), <code>@supabase/supabase-js</code>, <code>stripe</code>, <code>openai</code>, <code>cors</code> (controls which websites may call the API), and <code>dotenv</code> (loads the secret <code>.env</code> file). The <code>scripts</code> block maps <code>npm start</code> to running the server and <code>npm test</code> to the test runner.</p>
+  </div>
+  <div class="eli" data-eli="15">
+    <p>Seven runtime deps, no dev deps, no build step — tests use the built-in <code>node --test</code> runner, so Node ≥ 18 is implied. <code>main: server.js</code> matches the actual entry point. All versions are caret ranges; there's no lockfile in the repo, so installs float within semver. <code>private: true</code> prevents accidental <code>npm publish</code>.</p>
+  </div>
+  <div class="eli" data-eli="20">
+    <p>Nothing exotic. Caret ranges without a committed lockfile means non-reproducible installs — commit <code>package-lock.json</code> in a real project. <code>node --test tests/</code> pins the suite to the tests dir; adding route tests later needs no new tooling until you want <code>supertest</code>. The dependency list is also this book's service-detection source: supabase-js, stripe, openai, pg map to the external services on the cover page.</p>
+  </div>
+  <div class="sec sec-clean">
+    <h3>🔒 Attack surfaces that live here</h3>
+    <ul><li class="sev-ok">No obvious attack surfaces on this page.</li></ul>
+  </div>
+</section>
+
+<section class="chapter" id="ch-2" data-file=".env.example">
+  <header>
+    <h2><span class="ch-num">2</span> <code>.env.example</code></h2>
+    <p class="ch-role">The labeled, empty envelopes for every secret the app needs</p>
+    <p class="badges">
+      <span class="badge badge-lang">dotenv</span>
+      <a class="badge badge-svc" href="https://supabase.com/docs" target="_blank" rel="noopener">Supabase ↗</a>
+      <a class="badge badge-svc" href="https://docs.stripe.com" target="_blank" rel="noopener">Stripe ↗</a>
+      <a class="badge badge-svc" href="https://platform.openai.com/docs" target="_blank" rel="noopener">OpenAI ↗</a>
+      <span class="badge">🟡 worth knowing</span>
+    </p>
+  </header>
+  <div class="dial">
+    <span class="dial-label">Explain it like I'm <output>5</output></span>
+    <span class="dial-track">
+      <input type="range" min="0" max="3" step="1" value="0" aria-label="Explanation level: 5, 10, 15 or 20">
+      <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+    </span>
+  </div>
+  <div class="eli on" data-eli="5">
+    <p>Imagine a box of <strong>envelopes with labels but nothing inside</strong>: "Supabase master key goes here", "Stripe key goes here". This file shows every label so a new helper knows which secret notes the shop needs. The <em>real</em> notes go into a private copy named <code>.env</code> that must never leave the building. This example file is safe to share <em>because</em> the envelopes are empty.</p>
+  </div>
+  <div class="eli" data-eli="10">
+    <p>A template for the real <code>.env</code> file. Each line is <code>NAME=value</code>; here every value is a placeholder. The server loads the real file at startup (via <code>dotenv</code>) so keys never sit in the code itself. The names tell you the app's whole supply chain: Supabase (two keys plus a URL), the Postgres address, two Stripe secrets, one OpenAI key, and the port number.</p>
+  </div>
+  <div class="eli" data-eli="15">
+    <p>Standard dotenv template. Cross-checking names against the code: <code>SUPABASE_URL</code> + <code>SUPABASE_SERVICE_ROLE_KEY</code> → <code>lib/supabase.js</code>; <code>DATABASE_URL</code> → <code>lib/db.js</code>; <code>STRIPE_SECRET_KEY</code> → <code>routes/billing.js</code>; <code>OPENAI_API_KEY</code> → <code>lib/ai.js</code>; <code>PORT</code> → <code>server.js</code>. Two names are <strong>read by nothing</strong>: <code>SUPABASE_ANON_KEY</code> and <code>STRIPE_WEBHOOK_SECRET</code>. The second one is a bug wearing a config costume — see <a href="#ch-5">the billing chapter</a>.</p>
+  </div>
+  <div class="eli" data-eli="20">
+    <p>Unused env names are drift signals worth chasing: an unused <code>ANON_KEY</code> hints the frontend once talked to Supabase directly (it still carries the scar — see <a href="#ch-7">app.js</a>); an unused <code>WEBHOOK_SECRET</code> means the verification step was planned and skipped. <code>DATABASE_URL</code> embeds credentials — treat the whole string as a secret. Operational rules: real <code>.env</code> stays gitignored, rotate anything that ever landed in history, and prefer per-env project refs over one shared Supabase project.</p>
+  </div>
+  <div class="sec">
+    <h3>🔒 Attack surfaces that live here</h3>
+    <ul>
+      <li class="sev-yellow">This example file is safe, but the real <code>.env</code> it describes is a one-file jackpot. Make sure <code>.env</code> is listed in <code>.gitignore</code> before you ever fill it in — a secret committed once stays recoverable in git history even after you delete it.</li>
+      <li class="sev-yellow"><code>STRIPE_WEBHOOK_SECRET</code> is named here but no code reads it — the safety check it exists for is missing in <code>routes/billing.js</code>.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="chapter" id="ch-3" data-file="server.js">
+  <header>
+    <h2><span class="ch-num">3</span> <code>server.js</code></h2>
+    <p class="ch-role">The front door — starts the server, sets house rules, opens the two hallways</p>
+    <p class="badges">
+      <span class="badge badge-lang">JavaScript (Node)</span>
+      <a class="badge badge-svc" href="https://expressjs.com" target="_blank" rel="noopener">Express ↗</a>
+      <span class="badge">🟡 security note below</span>
+    </p>
+  </header>
+  <div class="dial">
+    <span class="dial-label">Explain it like I'm <output>5</output></span>
+    <span class="dial-track">
+      <input type="range" min="0" max="3" step="1" value="0" aria-label="Explanation level: 5, 10, 15 or 20">
+      <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+    </span>
+  </div>
+  <div class="eli on" data-eli="5">
+    <p>This file is the <strong>person who opens the shop every morning</strong>. It reads the secret notes (so the other helpers can use them), hangs up the front window page for visitors, and unlocks two hallways: <code>/api/notes</code> and <code>/api/billing</code>. It also keeps a little bell called <code>/healthz</code> that just rings "I'm alive!" One worry: it props the front door open for <em>every neighborhood on the internet</em> instead of just our own street.</p>
+  </div>
+  <div class="eli" data-eli="10">
+    <p>The <em>entry point</em> — the file Node runs first. It builds an Express app and stacks up <em>middleware</em>: checks every request passes through, in order. <code>cors({ origin: '*' })</code> answers "who may call this API from a web page?" with "anyone". <code>express.json()</code> unpacks JSON request bodies. <code>express.static('public')</code> serves the frontend files. Then it attaches the two routers and starts listening on the port from the <code>PORT</code> setting (or 3000).</p>
+  </div>
+  <div class="eli" data-eli="15">
+    <p>Boot order: <code>dotenv.config()</code> before anything reads <code>process.env</code> (correct), middleware, routers, <code>listen</code>. The wildcard CORS matters because this API has no auth: any origin can fire requests that the notes router will happily honor with a caller-chosen <code>userId</code>. <code>/healthz</code> is a plain liveness probe. Nothing else lives here — the interesting logic is all in the routers.</p>
+  </div>
+  <div class="eli" data-eli="20">
+    <p>Wildcard CORS is usually a 🟡 on its own; here it compounds the client-asserted-identity design into "any web page can read/write any user's notes from a victimless drive-by" — no credentials needed because the API never asks for any. Fix order: add real auth, then narrow <code>origin</code> to the app's own origins. Missing-but-standard: helmet, rate limiting, request size limits (<code>express.json({ limit })</code>), and a JSON error handler so async route failures don't fall through Express 4's default handler.</p>
+  </div>
+  <h4>The jobs inside</h4>
+  <dl class="fns">
+    <dt><code>GET /healthz</code> handler</dt><dd>Answers <code>{ ok: true }</code> so a monitor (or you) can check the server is up.</dd>
+    <dt><code>app.listen</code> callback</dt><dd>Prints which port the shop opened on.</dd>
+  </dl>
+  <div class="sec">
+    <h3>🔒 Attack surfaces that live here</h3>
+    <ul>
+      <li class="sev-yellow">CORS is open to every website (<code>origin: '*'</code>) on an API that also does no login checks — any page on the internet can script calls against your data. Lock it to your own site's address once auth exists.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="chapter" id="ch-4" data-file="routes/notes.js">
+  <header>
+    <h2><span class="ch-num">4</span> <code>routes/notes.js</code></h2>
+    <p class="ch-role">The notes hallway — list notes, pin new ones, ask the robot for a one-liner</p>
+    <p class="badges">
+      <span class="badge badge-lang">JavaScript (Node)</span>
+      <a class="badge badge-svc" href="https://www.postgresql.org/docs" target="_blank" rel="noopener">Postgres ↗</a>
+      <a class="badge badge-svc" href="https://platform.openai.com/docs" target="_blank" rel="noopener">OpenAI ↗</a>
+      <span class="badge">🟠 security notes below</span>
+    </p>
+  </header>
+  <div class="dial">
+    <span class="dial-label">Explain it like I'm <output>5</output></span>
+    <span class="dial-track">
+      <input type="range" min="0" max="3" step="1" value="0" aria-label="Explanation level: 5, 10, 15 or 20">
+      <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+    </span>
+  </div>
+  <div class="eli on" data-eli="5">
+    <p>Three service windows in one hallway. <strong>Window 1:</strong> "show me the notes for <em>this name</em>" — and it hands over that pile <em>without ever checking it's really you</em>. Anyone who says "Bob" gets Bob's notes. <strong>Window 2:</strong> pins a new note in the cabinet. <strong>Window 3:</strong> reads one note to the robot and brings back a one-sentence version.</p>
+    <p>The scary part: windows 1 and 2 <strong>glue your words straight into the instructions</strong> they hand the filing cabinet. A visitor can write a note that isn't a note — it's a sneaky instruction the cabinet will obey, like reading someone else's drawer.</p>
+  </div>
+  <div class="eli" data-eli="10">
+    <p>A <em>router</em>: a bundle of API addresses under <code>/api/notes</code>. The database speaks a language called SQL, and this file builds SQL sentences by pasting user text into them (<code>"... WHERE user_id = '" + userId + "'"</code>). If someone's "name" contains a quote mark, the sentence changes meaning — that's <em>SQL injection</em>. The third route shows the safe way: <code>$1</code> is a fill-in-the-blank the database fills <em>after</em> understanding the sentence, so tricks can't rewrite it. Also: identity comes from whatever the caller typed (<code>?userId=</code> or the body), because there's no login system.</p>
+  </div>
+  <div class="eli" data-eli="15">
+    <p>Three handlers on an Express <code>Router</code>. <code>GET /</code> and <code>POST /</code> interpolate <code>userId</code>, <code>body</code>, <code>color</code> straight into SQL — injection, twice. <code>GET /:id/summary</code> uses a parameterized query (<code>$1</code>) then pipes the note body to <code>lib/ai.summarize</code>. No schema validation, no length caps, no auth middleware; a quote in <code>color</code> doesn't just attack you, it 500s honest requests too. Note the asymmetry as your fix template: route 3's query style is what routes 1–2 should be.</p>
+  </div>
+  <div class="eli" data-eli="20">
+    <p>Classic quote-breakout injection, reachable cross-origin thanks to the wildcard CORS upstream. The fix is boring and total: parameterize everything, validate shapes/lengths at the edge (zod or a 10-line checker), and derive <code>userId</code> from a session — which means building auth this app doesn't have. Two subtler notes: Express 4 doesn't catch rejected async handlers, so any db error here is an unhandled rejection (add an async wrapper or Express 5); and the summary route bills OpenAI per call on an unauthenticated endpoint — free-tier abuse vector.</p>
+  </div>
+  <h4>The jobs inside</h4>
+  <dl class="fns">
+    <dt><code>GET /</code> handler</dt><dd>Fetches every note whose <code>user_id</code> matches the caller-supplied name, newest first.</dd>
+    <dt><code>POST /</code> handler</dt><dd>Inserts a new note (owner, text, color) and returns its new id.</dd>
+    <dt><code>GET /:id/summary</code> handler</dt><dd>Loads one note safely (<code>$1</code>), sends its text to OpenAI, returns the one-line summary.</dd>
+  </dl>
+  <div class="sec">
+    <h3>🔒 Attack surfaces that live here</h3>
+    <ul>
+      <li class="sev-orange">User text is glued into database commands in two routes — a crafted note or "name" can rewrite the command (SQL injection). Use fill-in-the-blank parameters (<code>$1</code>) like the summary route already does.</li>
+      <li class="sev-orange">Identity is whatever the caller claims: any visitor can read or write any user's notes by changing <code>userId</code>. Only a real login system fixes this.</li>
+      <li class="sev-orange">No input checks — a 10-megabyte "note" or a nonsense color is accepted as-is and passed to the database and to OpenAI (which charges per word).</li>
+    </ul>
+  </div>
+</section>
+
+<section class="chapter" id="ch-5" data-file="routes/billing.js">
+  <header>
+    <h2><span class="ch-num">5</span> <code>routes/billing.js</code></h2>
+    <p class="ch-role">The money hallway — sends people to pay, and hears (too trustingly) that they paid</p>
+    <p class="badges">
+      <span class="badge badge-lang">JavaScript (Node)</span>
+      <a class="badge badge-svc" href="https://docs.stripe.com" target="_blank" rel="noopener">Stripe ↗</a>
+      <a class="badge badge-svc" href="https://supabase.com/docs" target="_blank" rel="noopener">Supabase ↗</a>
+      <span class="badge">🔴 security notes below</span>
+    </p>
+  </header>
+  <div class="dial">
+    <span class="dial-label">Explain it like I'm <output>5</output></span>
+    <span class="dial-track">
+      <input type="range" min="0" max="3" step="1" value="0" aria-label="Explanation level: 5, 10, 15 or 20">
+      <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+    </span>
+  </div>
+  <div class="eli on" data-eli="5">
+    <p><strong>Booth 1</strong> hands you a golden ticket to Stripe's payment store, with your name written on it — except it writes <em>whatever name you tell it</em>. <strong>Booth 2</strong> is a back door where Stripe knocks to say "someone paid!" The problem: the booth <strong>never checks who's knocking</strong>. Anyone can knock, say "Bob paid!", and the shop makes Bob (or themselves) a VIP for free. Stripe gives shops a wax seal to check exactly this — our booth never looks at it.</p>
+  </div>
+  <div class="eli" data-eli="10">
+    <p>Two routes. <code>POST /checkout</code> asks Stripe to create a <em>Checkout session</em> — a Stripe-hosted payment page — and sends back its link; the caller's <code>userId</code> rides along as <code>client_reference_id</code> so we know who to upgrade later. <code>POST /webhook</code> is Stripe's callback: when a payment finishes, Stripe POSTs an event here. Stripe signs every event, and apps are supposed to verify that signature with <code>STRIPE_WEBHOOK_SECRET</code>. This code skips the check and believes any JSON that arrives, then sets that user's plan to <code>pro</code> in Supabase.</p>
+  </div>
+  <div class="eli" data-eli="15">
+    <p><code>checkout</code>: <code>stripe.checkout.sessions.create</code> with a hardcoded price id, redirect URLs to localhost, and body-supplied <code>client_reference_id</code>. <code>webhook</code>: reads <code>req.body</code> (already JSON-parsed by the global <code>express.json()</code>) and matches <code>event.type === 'checkout.session.completed'</code>. The correct pattern needs two changes at once: mount <code>express.raw()</code> on this route (verification needs the exact bytes), and call <code>stripe.webhooks.constructEvent(rawBody, req.headers['stripe-signature'], STRIPE_WEBHOOK_SECRET)</code> — which throws on forgeries. On success it updates <code>profiles.plan</code> via the service-role Supabase client.</p>
+  </div>
+  <div class="eli" data-eli="20">
+    <p>Two flaws compound: forgeable events × attacker-chosen <code>client_reference_id</code> = anyone can mint Pro for any account with one curl. Beyond <code>constructEvent</code>: dedupe on <code>event.id</code> (webhooks redeliver), don't trust event payload fields for money decisions — re-fetch the session/subscription from Stripe's API, and return 2xx fast to avoid retry storms. Hardcoded <code>price_…</code> id and localhost URLs belong in env. The service-role update is the right tool here; it's the unverified trigger that's wrong.</p>
+  </div>
+  <h4>The jobs inside</h4>
+  <dl class="fns">
+    <dt><code>POST /checkout</code> handler</dt><dd>Creates a Stripe Checkout session for the Pro subscription and returns its payment link.</dd>
+    <dt><code>POST /webhook</code> handler</dt><dd>Hears "payment finished" events and flips that user's plan to <code>pro</code> in Supabase — currently without proving the message came from Stripe.</dd>
+  </dl>
+  <div class="sec">
+    <h3>🔒 Attack surfaces that live here</h3>
+    <ul>
+      <li class="sev-red">The webhook never verifies Stripe's signature — anyone who finds <code>/api/billing/webhook</code> can fake a "payment succeeded" message and get Pro for free. <code>STRIPE_WEBHOOK_SECRET</code> exists in the config for exactly this check; the code never uses it.</li>
+      <li class="sev-orange">The checkout ticket's identity (<code>client_reference_id</code>) is whatever the caller sends — combined with the flaw above, an attacker can upgrade (or target) any account, not just their own.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="chapter" id="ch-6" data-file="public/index.html">
+  <header>
+    <h2><span class="ch-num">6</span> <code>public/index.html</code></h2>
+    <p class="ch-role">The front window — the page visitors actually see</p>
+    <p class="badges">
+      <span class="badge badge-lang">HTML + CSS</span>
+      <span class="badge">✅ clean</span>
+    </p>
+  </header>
+  <div class="dial">
+    <span class="dial-label">Explain it like I'm <output>5</output></span>
+    <span class="dial-track">
+      <input type="range" min="0" max="3" step="1" value="0" aria-label="Explanation level: 5, 10, 15 or 20">
+      <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+    </span>
+  </div>
+  <div class="eli on" data-eli="5">
+    <p>This is the shop's <strong>front window display</strong>: a title, a box where you type a note, an <em>Add</em> button, a <em>Go Pro ⭐</em> button, and an empty board where notes will appear. The window itself doesn't do anything — it invites a helper elf (<code>app.js</code>, next chapter) who does all the fetching and pinning. The sticky-note look (yellow cards, soft shadows) is painted right here in a few lines of styling.</p>
+  </div>
+  <div class="eli" data-eli="10">
+    <p>A single static HTML page the server hands to every visitor. It defines the elements by <em>id</em> — <code>note-input</code>, <code>add</code>, <code>upgrade</code>, <code>notes</code> — and those ids are the hooks <code>app.js</code> grabs to wire up behavior. The <code>&lt;style&gt;</code> block is plain CSS, no framework. The <code>&lt;script src="app.js"&gt;</code> line at the bottom is the handoff: structure here, behavior there.</p>
+  </div>
+  <div class="eli" data-eli="15">
+    <p>Static shell, no templating, no build. Contract with <code>app.js</code> is the four ids; nothing else is load-bearing. Notes are injected into <code>#notes</code> at runtime, so view-source shows an empty board — data never renders server-side. If this grew, the next steps would be a real component setup or template partials, but at this size a flat file is the right call.</p>
+  </div>
+  <div class="eli" data-eli="20">
+    <p>Inert by itself — the risk on this surface lives in how <code>app.js</code> fills <code>#notes</code> (see next chapter's XSS). Cheap hardening that belongs in this file: a <code>Content-Security-Policy</code> meta locking scripts to self, which would blunt injected-markup payloads even before the JS fix. No SRI/CDN concerns since the only script is same-origin.</p>
+  </div>
+  <div class="sec sec-clean">
+    <h3>🔒 Attack surfaces that live here</h3>
+    <ul><li class="sev-ok">No obvious attack surfaces on this page — but its empty <code>#notes</code> board is where the next chapter's problem lands.</li></ul>
+  </div>
+</section>
+
+<section class="chapter" id="ch-7" data-file="public/app.js">
+  <header>
+    <h2><span class="ch-num">7</span> <code>public/app.js</code></h2>
+    <p class="ch-role">The page's brain — and the window with a master key taped to it</p>
+    <p class="badges">
+      <span class="badge badge-lang">JavaScript (browser)</span>
+      <a class="badge badge-svc" href="https://supabase.com/docs" target="_blank" rel="noopener">Supabase ↗</a>
+      <span class="badge">🔴 security notes below</span>
+    </p>
+  </header>
+  <div class="dial">
+    <span class="dial-label">Explain it like I'm <output>5</output></span>
+    <span class="dial-track">
+      <input type="range" min="0" max="3" step="1" value="0" aria-label="Explanation level: 5, 10, 15 or 20">
+      <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+    </span>
+  </div>
+  <div class="eli on" data-eli="5">
+    <p>This is the <strong>helper elf that rides along in every visitor's pocket</strong>. It fetches your notes from the counter, pins new ones, and walks you to the payment booth when you press <em>Go Pro</em>.</p>
+    <p>Two scary things live here. First: someone <strong>taped a master key to the front window</strong> — a secret called <code>SUPABASE_SERVICE_ROLE_KEY</code> is written right in this file, and everything in this file is handed to every visitor. A master key opens <em>every</em> drawer in the filing company, ignoring all the locks. (The book never repeats the key itself — but it's there.) Second: when the elf pins notes to the board, it treats the note's words as <strong>real instructions</strong>, not just words — so a nasty note can boss the page around when anyone reads it.</p>
+  </div>
+  <div class="eli" data-eli="10">
+    <p>Browser JavaScript: every visitor downloads this file, so <em>nothing in it is secret</em>. Yet it hardcodes a Supabase <em>service-role</em> key — the kind that bypasses every data-protection rule. The code never even uses it (a leftover "TODO: move somewhere safer"), but unused doesn't mean safe: it shipped, so treat it as stolen and rotate it. Second issue: <code>div.innerHTML = note.body</code> pastes note text as live HTML — if a note contains a script tag, it runs in the reader's browser (called <em>XSS</em>). The fix is <code>textContent</code>, which pastes words as words. Third: "who am I" comes from <code>localStorage</code>, a self-written name tag anyone can edit.</p>
+  </div>
+  <div class="eli" data-eli="15">
+    <p>Three fetch wrappers (<code>loadNotes</code>, <code>addNote</code>, <code>goPro</code>) against the local API, wired to the ids from <code>index.html</code>. The hardcoded <code>SUPABASE_SERVICE_ROLE_KEY</code> constant is dead code — no supabase-js in the browser — which is exactly how leaks happen: a refactor moved the calls server-side and left the credential in the bundle. Rotate it in Supabase, then delete the constant. The XSS is <em>stored</em>: the POST route saves raw text, this file renders it with <code>innerHTML</code>, so one poisoned note fires for every reader of that board. <code>userId</code> from localStorage feeds the API's client-asserted identity problem end-to-end.</p>
+  </div>
+  <div class="eli" data-eli="20">
+    <p>Triage order: (1) rotate the service-role key now — bundle shipped = leaked, and git history keeps it; (2) <code>innerHTML → textContent</code> (one line) plus server-side length/shape validation, with CSP as belt-and-braces; (3) replace localStorage identity with a real session (Supabase Auth or a signed cookie) and derive the user server-side, which is the same fix ch-4 needs. Note the shape of the failure: the unused key + TODO comment is the classic vibe-code artifact — secrets migrate to the server, their copies don't get deleted.</p>
+  </div>
+  <h4>The jobs inside</h4>
+  <dl class="fns">
+    <dt><code>loadNotes()</code></dt><dd>Asks the API for this user's notes and pins each one to the board (currently as live HTML — the XSS).</dd>
+    <dt><code>addNote()</code></dt><dd>Sends the typed note to the API, clears the box, reloads the board.</dd>
+    <dt><code>goPro()</code></dt><dd>Asks the billing hallway for a Stripe payment link and sends the visitor there.</dd>
+  </dl>
+  <div class="sec">
+    <h3>🔒 Attack surfaces that live here</h3>
+    <ul>
+      <li class="sev-red">A Supabase <em>service-role</em> key is hardcoded in code that ships to every visitor's browser. It bypasses all row-level protection. Even though nothing here uses it, it's public now — rotate it in Supabase and delete the constant. (Named only — this book never prints values.)</li>
+      <li class="sev-orange">Notes render via <code>innerHTML</code>, so a saved note containing markup runs in every reader's browser (stored XSS). Use <code>textContent</code>.</li>
+      <li class="sev-yellow">Identity is a self-written <code>localStorage</code> name tag — it feeds the "trust whatever userId arrives" problem in the notes API.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="chapter" id="ch-8" data-file="lib/db.js">
+  <header>
+    <h2><span class="ch-num">8</span> <code>lib/db.js</code></h2>
+    <p class="ch-role">The phone line to the filing cabinet (Postgres)</p>
+    <p class="badges">
+      <span class="badge badge-lang">JavaScript (Node)</span>
+      <a class="badge badge-svc" href="https://www.postgresql.org/docs" target="_blank" rel="noopener">Postgres ↗</a>
+      <span class="badge">✅ clean</span>
+    </p>
+  </header>
+  <div class="dial">
+    <span class="dial-label">Explain it like I'm <output>5</output></span>
+    <span class="dial-track">
+      <input type="range" min="0" max="3" step="1" value="0" aria-label="Explanation level: 5, 10, 15 or 20">
+      <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+    </span>
+  </div>
+  <div class="eli on" data-eli="5">
+    <p>The shop keeps <strong>one phone line</strong> open to the filing cabinet instead of dialing a brand-new call for every little question — much faster. This file owns that phone. Other helpers (like the notes hallway) hand it a question, it asks the cabinet, and passes the answer back. The cabinet's address and password come from a secret note called <code>DATABASE_URL</code> — kept in the envelope box, not written here. That's the right way.</p>
+  </div>
+  <div class="eli" data-eli="10">
+    <p>Creates a connection <em>pool</em> — a set of reusable phone lines to Postgres — using the <code>pg</code> library, and exports one function, <code>query(text, params)</code>. The <code>params</code> part matters: it's the fill-in-the-blank mechanism (<code>$1</code>) that keeps user text from rewriting SQL sentences. This file offers safety; whether callers use it is their chapter's story.</p>
+  </div>
+  <div class="eli" data-eli="15">
+    <p>Thin, standard wrapper: one <code>Pool</code> per process off <code>DATABASE_URL</code>, one exported <code>query</code> passthrough. Sole consumer today is <code>routes/notes.js</code>. Because the signature already supports parameterized queries, fixing ch-4's injection needs zero changes here — the interface was right all along.</p>
+  </div>
+  <div class="eli" data-eli="20">
+    <p>Fine as-is for this size. Nits for growth: no <code>pool.on('error')</code> handler (idle-client errors crash Node), no graceful <code>pool.end()</code> on shutdown, and default pool sizing — all standard hardening, none urgent. The injection risk pattern-matched to "database file" actually lives entirely in the caller's string-building; keep this boundary dumb and safe.</p>
+  </div>
+  <h4>The jobs inside</h4>
+  <dl class="fns">
+    <dt><code>query(text, params)</code></dt><dd>Hands one question (with optional fill-in-the-blank values) to the pool and returns the cabinet's answer.</dd>
+  </dl>
+  <div class="sec sec-clean">
+    <h3>🔒 Attack surfaces that live here</h3>
+    <ul><li class="sev-ok">No obvious attack surfaces on this page — the danger is in how <code>routes/notes.js</code> builds the text it sends here.</li></ul>
+  </div>
+</section>
+
+<section class="chapter" id="ch-9" data-file="lib/supabase.js">
+  <header>
+    <h2><span class="ch-num">9</span> <code>lib/supabase.js</code></h2>
+    <p class="ch-role">The key drawer done right — the master key stays behind the counter</p>
+    <p class="badges">
+      <span class="badge badge-lang">JavaScript (Node)</span>
+      <a class="badge badge-svc" href="https://supabase.com/docs" target="_blank" rel="noopener">Supabase ↗</a>
+      <span class="badge">✅ clean</span>
+    </p>
+  </header>
+  <div class="dial">
+    <span class="dial-label">Explain it like I'm <output>5</output></span>
+    <span class="dial-track">
+      <input type="range" min="0" max="3" step="1" value="0" aria-label="Explanation level: 5, 10, 15 or 20">
+      <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+    </span>
+  </div>
+  <div class="eli on" data-eli="5">
+    <p>This page is the <strong>good twin</strong> of chapter 7. It also holds the master key to the filing company — but properly: the key stays in the secret envelope (<code>SUPABASE_SERVICE_ROLE_KEY</code>), it's only ever opened <em>behind the counter</em> (on the server), and visitors never see it. When the money hallway needs to mark someone as Pro, it borrows this connection.</p>
+  </div>
+  <div class="eli" data-eli="10">
+    <p>Builds the server-side Supabase <em>client</em> — the object other files use to read and write Supabase tables — using the URL and service-role key from the environment. <code>persistSession: false</code> just means "this is a server, don't try to remember a logged-in person here." One connection is created once and shared by whoever imports this file (today: the billing route).</p>
+  </div>
+  <div class="eli" data-eli="15">
+    <p>Singleton service-role client, correct placement (server-only), env-sourced. The service role exists precisely to skip RLS for trusted backend jobs like the plan flip in <code>routes/billing.js</code>. The caveat is upstream: an unverified webhook is currently the thing pulling this trusted lever — the lever itself is fine.</p>
+  </div>
+  <div class="eli" data-eli="20">
+    <p>Right pattern, one giant asterisk: this key's <em>value</em> is also sitting hardcoded in <code>public/app.js</code>, so until it's rotated this file's hygiene protects nothing. After rotation, this env var is the only holder again. Longer-term: prefer scoped/secret API keys (Supabase's newer key system) or an RLS-respecting path where feasible, and keep service-role usage down to narrow, audited operations like this one.</p>
+  </div>
+  <div class="sec sec-clean">
+    <h3>🔒 Attack surfaces that live here</h3>
+    <ul><li class="sev-ok">No obvious attack surfaces on this page — this is the <em>correct</em> home for the service-role key. Its problem is that a copy also lives in <code>public/app.js</code>; rotate the key to make this the only home.</li></ul>
+  </div>
+</section>
+
+<section class="chapter" id="ch-10" data-file="lib/ai.js">
+  <header>
+    <h2><span class="ch-num">10</span> <code>lib/ai.js</code></h2>
+    <p class="ch-role">The robot reader — mails a note to OpenAI, gets one sentence back</p>
+    <p class="badges">
+      <span class="badge badge-lang">JavaScript (Node)</span>
+      <a class="badge badge-svc" href="https://platform.openai.com/docs" target="_blank" rel="noopener">OpenAI ↗</a>
+      <span class="badge">🟡 worth knowing</span>
+    </p>
+  </header>
+  <div class="dial">
+    <span class="dial-label">Explain it like I'm <output>5</output></span>
+    <span class="dial-track">
+      <input type="range" min="0" max="3" step="1" value="0" aria-label="Explanation level: 5, 10, 15 or 20">
+      <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+    </span>
+  </div>
+  <div class="eli on" data-eli="5">
+    <p>When someone asks for the short version of a note, this file <strong>mails the whole note to a robot in another city</strong> (a company called OpenAI) and waits for one sentence back. Each letter costs a few pennies, paid with the <code>OPENAI_API_KEY</code> secret note. Worth remembering: the note <em>leaves the shop</em> — a stranger company reads it, even if it's your grocery list… or your diary.</p>
+  </div>
+  <div class="eli" data-eli="10">
+    <p>Sets up the OpenAI client with a key from the environment (good — not hardcoded) and exports one function: <code>summarize(text)</code>. It sends a two-part message — a <em>system</em> instruction ("summarize in one short sentence") and the note text — to the <code>gpt-4o-mini</code> model, caps the reply length with <code>max_tokens: 60</code>, and returns the trimmed sentence. Every call costs real money, which is why "who may trigger this?" matters.</p>
+  </div>
+  <div class="eli" data-eli="15">
+    <p>Minimal chat-completions wrapper. What it lacks at this size: a timeout/abort (a stalled OpenAI call currently hangs the route), retry policy, and an input length cap — note bodies arrive unvalidated from ch-4, so cost scales with whatever a caller pastes. Called only from <code>GET /:id/summary</code>. The system-prompt/user-content split is correct; treat note text strictly as content, never as instructions.</p>
+  </div>
+  <div class="eli" data-eli="20">
+    <p>Ship-blockers none, hardening cheap: pass a request timeout, clamp input (e.g. first 2–4k chars), catch and map provider errors to a 502 instead of an unhandled rejection, and consider caching summaries per note id. The interesting risks are systemic: unauthenticated callers can run up token spend (free-abuse vector via ch-3/ch-4), and note content egresses to a third party — that's a privacy-policy line item, not just an engineering one.</p>
+  </div>
+  <h4>The jobs inside</h4>
+  <dl class="fns">
+    <dt><code>summarize(text)</code></dt><dd>Sends the note text to OpenAI with a "one short sentence" instruction and returns the reply.</dd>
+  </dl>
+  <div class="sec">
+    <h3>🔒 Attack surfaces that live here</h3>
+    <ul>
+      <li class="sev-yellow">Note text is sent to a third party (OpenAI) — fine for a demo, but real users' private notes leaving the app is something to disclose and decide on purpose.</li>
+      <li class="sev-yellow">Anyone can trigger paid API calls (no login anywhere upstream) and there's no cap on input size — a stranger can quietly run up your OpenAI bill.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="chapter" id="ch-11" data-file="utils/format.js">
+  <header>
+    <h2><span class="ch-num">11</span> <code>utils/format.js</code></h2>
+    <p class="ch-role">The label maker — pretty timestamps and shortened text</p>
+    <p class="badges">
+      <span class="badge badge-lang">JavaScript</span>
+      <span class="badge">✅ clean</span>
+    </p>
+  </header>
+  <div class="dial">
+    <span class="dial-label">Explain it like I'm <output>5</output></span>
+    <span class="dial-track">
+      <input type="range" min="0" max="3" step="1" value="0" aria-label="Explanation level: 5, 10, 15 or 20">
+      <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+    </span>
+  </div>
+  <div class="eli on" data-eli="5">
+    <p>A tiny <strong>label maker</strong> with two buttons: one turns a boring exact time into a friendly "2h ago", the other shortens a long note to fit on a small label and adds "…" at the end. It talks to nobody — no internet, no filing cabinet — it just tidies words.</p>
+  </div>
+  <div class="eli" data-eli="10">
+    <p>Two <em>pure functions</em> — same input, same output, no side effects. <code>timeAgo</code> subtracts a timestamp from "now" and picks a bucket: seconds → "just now", then minutes, hours, days. <code>clip</code> cuts text over a limit (default 120 characters) and appends an ellipsis. Fun fact discovered while mapping the repo: nothing in the app imports this file yet — only the tests do.</p>
+  </div>
+  <div class="eli" data-eli="15">
+    <p>Dependency-free helpers, exported CommonJS-style. Only consumer: <code>tests/format.test.js</code> — dead code from the app's perspective, presumably written for a frontend "posted 2h ago" label that never landed. Either wire it into <code>loadNotes()</code> or delete it; unused code still costs reading time (this chapter being the proof).</p>
+  </div>
+  <div class="eli" data-eli="20">
+    <p>Edge notes if it does get wired in: <code>clip</code> counts UTF-16 units, so it can split surrogate pairs/emoji mid-glyph (fine for a demo; use <code>Intl.Segmenter</code> if it matters); <code>timeAgo</code> maps future timestamps to "just now" (negative seconds pass the <code>&lt; 60</code> check) — harmless quirk, worth a comment. No i18n. Zero risk surface.</p>
+  </div>
+  <h4>The jobs inside</h4>
+  <dl class="fns">
+    <dt><code>timeAgo(iso)</code></dt><dd>Turns a timestamp into "just now", "5m ago", "3h ago", or "2d ago".</dd>
+    <dt><code>clip(text, max)</code></dt><dd>Shortens long text to <code>max</code> characters (default 120) with an ellipsis.</dd>
+  </dl>
+  <div class="sec sec-clean">
+    <h3>🔒 Attack surfaces that live here</h3>
+    <ul><li class="sev-ok">No obvious attack surfaces on this page.</li></ul>
+  </div>
+</section>
+
+<section class="chapter" id="ch-12" data-file="tests/format.test.js">
+  <header>
+    <h2><span class="ch-num">12</span> <code>tests/format.test.js</code></h2>
+    <p class="ch-role">The taste-tester — checks the label maker before customers use it</p>
+    <p class="badges">
+      <span class="badge badge-lang">JavaScript (node:test)</span>
+      <span class="badge">✅ clean</span>
+    </p>
+  </header>
+  <div class="dial">
+    <span class="dial-label">Explain it like I'm <output>5</output></span>
+    <span class="dial-track">
+      <input type="range" min="0" max="3" step="1" value="0" aria-label="Explanation level: 5, 10, 15 or 20">
+      <span class="dial-ticks"><span>5</span><span>10</span><span>15</span><span>20</span></span>
+    </span>
+  </div>
+  <div class="eli on" data-eli="5">
+    <p>Before the shop opens, a <strong>taste-tester</strong> tries the label maker three times: "does a very long note get shortened with a '…'? does a short note stay untouched? does a brand-new note say 'just now'?" If any answer is wrong, the test run shouts about it. Notice who's <em>not</em> being tested: the hallways where all the scary stuff from earlier chapters lives.</p>
+  </div>
+  <div class="eli" data-eli="10">
+    <p>Automated tests using Node's built-in runner (<code>npm test</code> → <code>node --test</code>). Each <code>test(...)</code> block calls a function with a known input and <em>asserts</em> the output matches exactly. Three cases, all for <code>utils/format.js</code>. Tests are a safety net: they catch it when a future change quietly breaks old behavior — but only for code they cover.</p>
+  </div>
+  <div class="eli" data-eli="15">
+    <p>Straightforward <code>node:test</code> + <code>assert/strict</code> usage, no mocks needed since the targets are pure. Coverage honesty: the only tested module is the one module the app doesn't use. The routes — injection, webhook, auth behavior — have zero regression protection, which is where tests would pay for themselves.</p>
+  </div>
+  <div class="eli" data-eli="20">
+    <p>Highest-value next tests, in order: notes routes via <code>supertest</code> (assert parameterized queries reject quote-breakout inputs once fixed), webhook route with forged vs. correctly-signed fake Stripe events (signature check as an executable spec), and a length-cap test on the summary path. The <code>timeAgo</code> "fresh timestamp" test has a theoretical flake window if the clock ticks between ISO generation and comparison — irrelevant at <code>&lt; 60s</code> granularity.</p>
+  </div>
+  <h4>The jobs inside</h4>
+  <dl class="fns">
+    <dt><code>test('clip shortens long text')</code></dt><dd>200 a's, limit 10 → nine a's plus "…".</dd>
+    <dt><code>test('clip leaves short text alone')</code></dt><dd>"hello" stays "hello".</dd>
+    <dt><code>test('timeAgo handles fresh timestamps')</code></dt><dd>A just-created time reads "just now".</dd>
+  </dl>
+  <div class="sec sec-clean">
+    <h3>🔒 Attack surfaces that live here</h3>
+    <ul><li class="sev-ok">No obvious attack surfaces on this page.</li></ul>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>Made with 🖍️ <strong>Crayon Docs</strong> — a local book about your code. Keep it local. (This copy is a published example built from fake demo code.)</footer>
+
+<script>
+(function(){
+  var LEVELS=[5,10,15,20];
+  function setLevel(ch, idx){
+    var input=ch.querySelector('.dial input'); if(!input) return;
+    input.value=idx;
+    var out=ch.querySelector('.dial output'); if(out) out.textContent=LEVELS[idx];
+    ch.querySelectorAll('.eli').forEach(function(e){
+      e.classList.toggle('on', +e.getAttribute('data-eli')===LEVELS[idx]);
+    });
+  }
+  var chapters=Array.prototype.slice.call(document.querySelectorAll('.chapter'));
+  chapters.forEach(function(ch){
+    var input=ch.querySelector('.dial input'); if(!input) return;
+    input.addEventListener('input', function(){ setLevel(ch, +input.value); });
+    setLevel(ch, +input.value);
+  });
+  var all=document.getElementById('dial-all'), outAll=document.getElementById('out-all');
+  if(all) all.addEventListener('input', function(){
+    if(outAll) outAll.textContent=LEVELS[+all.value];
+    chapters.forEach(function(ch){ setLevel(ch, +all.value); });
+  });
+  var links={};
+  document.querySelectorAll('.toc a').forEach(function(a){ links[a.hash.slice(1)]=a; });
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting) return;
+        var l=links[en.target.id]; if(!l) return;
+        document.querySelectorAll('.toc a.active').forEach(function(x){ x.classList.remove('active'); });
+        l.classList.add('active');
+      });
+    },{rootMargin:'-15% 0px -75% 0px'});
+    chapters.forEach(function(s){ io.observe(s); });
+  }
+  var det=document.querySelector('.side details'), mq=window.matchMedia('(max-width:900px)');
+  function fit(){ if(det) det.open=!mq.matches; }
+  fit();
+  if(mq.addEventListener) mq.addEventListener('change', fit);
+})();
+</script>
+</body>
+</html>
