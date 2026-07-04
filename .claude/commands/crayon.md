@@ -13,7 +13,7 @@ Build a "Crayon Book" — a plain-language TEACHING tool that explains this enti
    - **Security — "attack surfaces that live here":** apply the per-file checklist from the reference. Flag any 🔴/🟠/🟡 concern in plain language, or state "No obvious attack surfaces on this page." Name env vars/keys, never values.
 
 ## Output — CRAYON_BOOK.html (single self-contained file, inline CSS/JS, no network)
-- **Use the template:** read `.claude/commands/crayon-template.html` and follow the fill instructions in its header comment — replace the `¤PROJECT¤`/`¤SUBTITLE¤`/`¤DATE¤`/`¤COUNT¤` tokens, fill the `CRAYON:TOC` and `CRAYON:CHAPTERS` marked regions with real content, delete the instruction comment. Keep the template's CSS/JS/layout exactly as shipped. **If the template file is missing**, generate an equivalent page yourself from the bullets below.
+- **Use the template:** read `.claude/commands/crayon-template.html` (if it's not there, try `~/.claude/commands/crayon-template.html` — the user may have installed crayon globally) and follow the fill instructions in its header comment — replace the `¤PROJECT¤`/`¤SUBTITLE¤`/`¤DATE¤`/`¤COUNT¤` tokens, fill the `CRAYON:TOC` and `CRAYON:CHAPTERS` marked regions with real content, delete the instruction comment. Keep the template's CSS/JS/layout exactly as shipped. **If the template file is missing**, generate an equivalent page yourself from the bullets below.
 - Left sidebar = clickable book index. Main pane = chapters. Smooth-scroll anchors.
 - Readable: generous line-height, ~70ch text width, monospace for code/filenames.
 - **ELI dial** on each chapter: slider 5/10/15/20, DEFAULT 5, labeled "Explain it like I'm ___". Sliding shows that level, hides others (inline JS).
