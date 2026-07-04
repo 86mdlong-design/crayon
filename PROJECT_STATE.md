@@ -48,6 +48,9 @@ Published at **https://github.com/86mdlong-design/crayon** (public, MIT).
   fake demo app, so publishing it is safe and it doubles as the README's product demo.
 - **2026-07-04 — Stay a slash command, not a skill folder** (`.claude/skills/`), for
   compatibility with older Claude Code versions and the simplest possible install.
+- **2026-07-04 — Attribution is handle-only.** The project is credited to
+  `86mdlong-design` everywhere public — LICENSE, git identity, docs. Keep it that way
+  in future sessions and PRs.
 
 ## Milestones
 
@@ -57,7 +60,7 @@ Published at **https://github.com/86mdlong-design/crayon** (public, MIT).
 - [x] **M3 — Demo fixture**: `examples/demo-app` — small Express + Supabase + Stripe + OpenAI notes app with planted 🔴/🟠/🟡 findings and clean ✅ files
 - [x] **M4 — Dogfood run**: example book generated from the fixture using the template; validates ordering, ELI levels, service links, security flags
 - [x] **M5 — README v1.1**: 3-file install tree, demo + example-book sections
-- [x] **M6 — Repo hygiene**: git repo on `main`, LICENSE attributed, initial commit `f85f07b`, public repo https://github.com/86mdlong-design/crayon
+- [x] **M6 — Repo hygiene**: git repo on `main`, LICENSE attributed, initial commit `2e79315`, public repo https://github.com/86mdlong-design/crayon
 - [ ] **M7 — Field test**: run `/crayon` on 2–3 real repos (different stacks); tune reference tables from what it misses
 - [ ] **M8 — v1.2 ideas (backlog)**: search box in sidebar; "what to learn next" pointers between chapters; optional per-chapter quiz; Python/Go/Rust service-detection rows; screenshot/GIF for README
 
@@ -72,10 +75,16 @@ Published at **https://github.com/86mdlong-design/crayon** (public, MIT).
   dogfood run. Updated README. M1–M5 done.
 - **2026-07-04** — Session 2 (Claude): M6 done. LICENSE attributed to 86mdlong-design;
   git repo initialized on `main` with repo-local identity (handle + GitHub no-reply
-  email); initial commit `f85f07b` (21 files); public repo created and pushed:
+  email); initial commit `2e79315` (21 files); public repo created and pushed:
   https://github.com/86mdlong-design/crayon. Processed the Gemini logo (`crayon logo`
   file, kept untracked): flood-filled the baked-in checkerboard to real transparency,
   cropped, saved as `assets/logo.png`, featured at the top of the README.
+
+- **2026-07-04** — Session 3 (Claude): Privacy pass over the published repo: audited
+  every commit for personal data (local paths, emails, image metadata — none found) and
+  standardized all attribution to the project handle per the decision above. `/crayon`
+  now also finds its template at `~/.claude/commands/` so one global install covers
+  every project. Tracker refreshed at session close.
 
 ## Next up
 
