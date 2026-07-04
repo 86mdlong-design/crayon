@@ -18,7 +18,8 @@ Published at **https://github.com/86mdlong-design/crayon** (public, MIT).
 
 | Path | Role | Status |
 |---|---|---|
-| `README.md` | Landing page / install & use docs | ✅ v1.1 (example book linked) |
+| `README.md` | Landing page / install & use docs | ✅ v1.1 (example book linked, logo) |
+| `assets/logo.png` | Transparent logo (Gemini art, checkerboard bg removed + cropped) | ✅ |
 | `LICENSE` | MIT — © 2026 86mdlong-design | ✅ |
 | `PROJECT_STATE.md` | This tracker | ✅ |
 | `.claude/commands/crayon.md` | The `/crayon` command spec | ✅ v1.1 (template-aware) |
@@ -72,7 +73,9 @@ Published at **https://github.com/86mdlong-design/crayon** (public, MIT).
 - **2026-07-04** — Session 2 (Claude): M6 done. LICENSE attributed to 86mdlong-design;
   git repo initialized on `main` with repo-local identity (handle + GitHub no-reply
   email); initial commit `f85f07b` (21 files); public repo created and pushed:
-  https://github.com/86mdlong-design/crayon.
+  https://github.com/86mdlong-design/crayon. Processed the Gemini logo (`crayon logo`
+  file, kept untracked): flood-filled the baked-in checkerboard to real transparency,
+  cropped, saved as `assets/logo.png`, featured at the top of the README.
 
 ## Next up
 

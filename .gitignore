@@ -5,3 +5,6 @@ CRAYON_BOOK.html
 
 node_modules/
 .env
+
+# raw Gemini logo export (kept local; processed transparent copy lives at assets/logo.png)
+crayon logo

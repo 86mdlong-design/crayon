@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="Crayon Docs — a box of crayons with bites taken out" width="170">
+</p>
+
 # 🖍️ Crayon Docs
 
 A Claude Code command that reads your whole codebase and builds **one** local HTML "Crayon Book" that *teaches* you what your code does — built for "vibe coders."
